@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+	
+	<context:component-scan base-package="com.despegar.p13n.commons.config" />
+	<context:component-scan base-package="com.despegar.p13n.hbasecommons.conf" />
+	<context:component-scan base-package="com.despegar.p13n.mab" />
+    <context:component-scan base-package="com.despegar.p13n.hestia">
+		<context:exclude-filter type="regex"
+			expression="com.despegar.p13.hestia.api.*" />
+		<context:exclude-filter type="regex"
+			expression="com.despegar.p13n.hestia.controller" />
+	</context:component-scan> 
+
+	<import resource="classpath:com/despegar/library/properties/base-properties-context.xml" />
+
+	<import resource="classpath:properties-context.xml" />
+
+	<import resource="classpath:documentation-context.xml" />
+
+	<!-- Spring task executor -->
+	<task:scheduler id="taskScheduler" />
+	<task:executor id="batchTasksExecutor" pool-size="3" />
+	<task:annotation-driven executor="batchTasksExecutor"
+		scheduler="taskScheduler" />
+
+	<!-- Thread Pool Notifier -->
+	<bean id="threadPoolExecutorMetricsNotifier"
+		class="com.despegar.integration.threading.metricsnotifier.ThreadPoolExecutorMetricsNotifier" />
+
+	<task:scheduled-tasks scheduler="threadPoolExecutorMetricsNotifierScheduler">
+		<task:scheduled ref="threadPoolExecutorMetricsNotifier"
+			method="notifyNewRelic" cron=" */10 * * * * *" />
+		<task:scheduled ref="newRelicNotifierDiscovery" method="notifyNewRelic"
+			cron=" */10 * * * * *" />
+	</task:scheduled-tasks>
+	<task:scheduler id="threadPoolExecutorMetricsNotifierScheduler"
+		pool-size="1" />
+
+</beans>

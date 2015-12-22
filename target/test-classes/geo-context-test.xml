@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file is no longer used because it was needed for the GEO API V1 which is now deprecated, will be deleted soon -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- Properties -->
+	<import
+		resource="classpath:com/despegar/library/properties/base-properties-context.xml" />
+
+	<!-- Properties -->
+	<bean class="com.despegar.library.properties.PropertyConfigurerDescriptor"
+		p:environmentResource="classpath:conf/env/geo.properties" />
+	<bean class="com.despegar.library.properties.PropertyConfigurerDescriptor"
+		p:environmentResource="classpath:conf/app/geo.properties" />
+
+	<bean id="geoRestConnector"
+		class="com.despegar.framework.spring.web.http.RestConnectorFactoryBean">
+		<property name="useHeaders" value="true" />
+		<property name="useUOW" value="true"/>
+		<property name="clientId" value="euler" />
+		<property name="version" value="28" />
+		<!-- 
+		 <property name="endPointUrl" value="http://vmconcorde.servers.despegar.it/geo-services-web/service" />
+		 -->
+		<property name="endPointUrl" value="http://geo.despegar.com/geo-services-web/service" />
+		<property name="connectionTimeout" value="10000" />
+	</bean>
+
+
+	<bean id="jsonGeoRestClient"
+		class="com.despegar.framework.spring.web.http.client.JsonRestClient">
+		<property name="restConnector" ref="geoRestConnector" />
+		<property name="failOnUnknownProperties" value="false" />
+	</bean>
+
+	<bean name="geoSimplifiedDataClient" class="com.despegar.geodespegar.client.SimplifiedDataClient">
+		<property name="jsonRestClient" ref="jsonGeoRestClient" />
+	</bean>
+
+	
+</beans>
